@@ -2,12 +2,24 @@ library(tidyverse)
 library(ggplot2)
 library(shiny)
 library(rlang)
+library(zeallot)
+library(tidyr)
 
 setwd("C:/Users/Przemo/Desktop/IT/R/TrainShiny01")
 load("auta.Rdata")
 
+# Removing outliners
+mask1 <- quantile(auta$Przebieg.w.km, probs = 0.9995, na.rm= TRUE) 
+
+auta <- auta %>%
+  filter(Przebieg.w.km < mask1 & KM < 1100 & Pojemnosc.skokowa < 18000)
+
+
 seq_last <- function(x, interval) {
-  #x is vector
+  #' @param x is vector
+  #' 
+  #' @return sequence like seq() function, but include laste not full interval
+  
   seq <- seq(from = min(x), to = max(x), by = interval)
   
   if (tail(seq, 1) == max(x)) {
@@ -18,54 +30,33 @@ seq_last <- function(x, interval) {
   }
 }
 
-############                     SUPER FAJNE ROZWIAZANIE JAK PODAWAC ARGUMENTY DO FUNKCJI GDZIE UZYWAMY GROUPBY ITP ################
 
-interval_group_by <- function(df, column_interval, column_calculate, interval, dig.lab = 5) {
-  # DF to coalculeta
-  # column_interval <- column turned into intervals with cut and group_by
-  # column_calcularte <- column to calculate mean and median in intervals
-  # interval <- value of the interval
-  
-  column_interval <- enquo(column_interval)
-  column_calculate <- enquo(column_calculate)
-  
-  print(column_interval)
+# Columns used to filter main plot in APP
+numericColnames <- colnames(select_if(auta, is.numeric))
+
+
+interval_group_by_2 <- function(df, column_interval, column_calculate, interval, dig.lab = 100) {
+  #' @param DF to calculate
+  #' @param column_interval <- column turned into intervals with cut and group_by
+  #' @param column_calculate <- column to calculate mean and median in intervals
+  #' @param interval <- value of the interval
+  #' @return DATA FRAM grouped by @param column_interval and calculated mean, median for @param column_calculate
   
   df_grouped_by_interval <- df %>%
-    mutate(year_intervals = cut(!!column_interval, seq_last(!!column_interval, interval), dig.lab = dig.lab)) %>% 
-    group_by(year_intervals) %>%
-    summarise(mean_by_interval = mean(!!column_calculate),
-              median_by_interval = median(!!column_calculate)) %>%
-    drop_na()
-  
-  return(df_grouped_by_interval)
-}
-
-interval_df <- interval_group_by(auta, Rok.produkcji, Cena.w.PLN, 13)
-interval_df
-
-interval_group_by(auta, Rok.produkcji, Cena.w.PLN, 13)
-#################
-
-interval_group_by_2 <- function(df, column_interval, column_calculate, interval, dig.lab = 5) {
-  # DF to coalculeta
-  # column_interval <- column turned into intervals with cut and group_by
-  # column_calcularte <- column to calculate mean and median in intervals
-  # interval <- value of the interval
-  
-  df_grouped_by_interval <- df %>%
+    drop_na() %>% 
     mutate(year_intervals = cut(!! sym(column_interval), seq_last(!! sym(column_interval), interval), dig.lab = dig.lab)) %>% 
     group_by(year_intervals) %>%
     summarise(mean_by_interval = mean(!! sym(column_calculate)),
-              median_by_interval = median(!! sym(column_calculate))) %>%
+              median_by_interval = median(!! sym(column_calculate)),
+              n = n()) %>% 
     drop_na()
   
   return(df_grouped_by_interval)
 }
 
-interval_group_by_2(auta, "Cena", "Cena.w.PLN", 13)
+interval_df <- interval_group_by_2(auta, "Rok.produkcji", "Cena", 13)
 
-######
+### Prototype PLOT without reactive inputs
 
 ggplot(interval_df, aes(x = reorder(year_intervals , year_intervals), y= mean_by_interval /1000)) +
   geom_col() +
@@ -90,4 +81,14 @@ ggplot(mtcars, aes(x = cyl)) +
   geom_histogram(bins = 3)
 
 
-numericColnames <- colnames(select_if(auta, is.numeric))
+interval_input_values <- function(interval_variable) {
+  switch(interval_variable,
+         "Cena" = list(min = 10e+3, max = 10e+5, step = 10e+3),
+         "Cena.w.PLN" = list(min = 10e+3, max = 10e+5, step = 10e+3),
+         "KM" = list(min = 10, max = 100, step = 10),
+         "kW" = list(min = 10, max = 100, step = 10),
+         "Pojemnosc.skokowa" = list(min = 100, max = 1000, step = 100),
+         "Przebieg.w.km" = list(min = 10e+3, max = 10e+5, step = 10e+3),
+         "Rok.produkcji" = list(min = 1, max = 10, step = 1),
+  )
+}

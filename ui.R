@@ -12,11 +12,19 @@ ui <- dashboardPage(
   dashboardSidebar(disable = TRUE, collapsed = TRUE),
   dashboardBody(
     fluidRow(
-      column(width= 3,
-             intervalInput("interval")),
-      column(width = 8,
-             selectNumercInput("select_variable")
-      )),
+      column(width= 4,
+             wellPanel(
+               intervalInput("interval"))
+             ),
+      column(width = 5,
+             wellPanel(
+               selectNumercInput("select_variable"))
+             ),
+      column(width = 3,
+             wellPanel(
+               meanMedianiInput("meanMedian"))
+      )
+      ),
     fluidRow(
       column(width = 12,
              plotUI("interval_plot"))
