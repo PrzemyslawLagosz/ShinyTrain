@@ -34,8 +34,8 @@ seq_last <- function(x, interval) {
 # Columns used to filter main plot in APP
 numericColnames <- colnames(select_if(auta, is.numeric))
 
-
-interval_group_by_2 <- function(df, column_interval, column_calculate, interval, dig.lab = 100) {
+#, dig.lab = 50 w definiciji interval_group i potem w mutate
+interval_group_by_2 <- function(df, column_interval, column_calculate, interval, range_vals = c(1950, 2000), dig.lab = 50) {
   #' @param DF to calculate
   #' @param column_interval <- column turned into intervals with cut and group_by
   #' @param column_calculate <- column to calculate mean and median in intervals
@@ -43,10 +43,11 @@ interval_group_by_2 <- function(df, column_interval, column_calculate, interval,
   #' @return DATA FRAM grouped by @param column_interval and calculated mean, median for @param column_calculate
   
   df_grouped_by_interval <- df %>%
+    filter(!! sym(column_interval) >= range_vals[1] & !! sym(column_interval) <= range_vals[2]) %>% 
     drop_na() %>% 
     mutate(year_intervals = cut(!! sym(column_interval), seq_last(!! sym(column_interval), interval), dig.lab = dig.lab)) %>% 
     group_by(year_intervals) %>%
-    summarise(mean_by_interval = mean(!! sym(column_calculate)),
+    summarise(mean_by_interval = mean(!! sym(column_calculate), na.rm = TRUE),
               median_by_interval = median(!! sym(column_calculate)),
               n = n()) %>% 
     drop_na()
@@ -83,12 +84,22 @@ ggplot(mtcars, aes(x = cyl)) +
 
 interval_input_values <- function(interval_variable) {
   switch(interval_variable,
-         "Cena" = list(min = 10e+3, max = 10e+5, step = 10e+3),
-         "Cena.w.PLN" = list(min = 10e+3, max = 10e+5, step = 10e+3),
-         "KM" = list(min = 10, max = 100, step = 10),
-         "kW" = list(min = 10, max = 100, step = 10),
-         "Pojemnosc.skokowa" = list(min = 100, max = 1000, step = 100),
-         "Przebieg.w.km" = list(min = 10e+3, max = 10e+5, step = 10e+3),
-         "Rok.produkcji" = list(min = 1, max = 10, step = 1),
+         "Cena" = list(min = 10e+3, max = 10e+5, step = 10e+3, value = 5*10e+4),
+         "Cena.w.PLN" = list(min = 10e+3, max = 10e+5, step = 10e+3, value = 5*10e+4),
+         "KM" = list(min = 10, max = 100, step = 10, value = 50),
+         "kW" = list(min = 10, max = 100, step = 10, value = 50),
+         "Pojemnosc.skokowa" = list(min = 100, max = 1000, step = 100, value = 500),
+         "Przebieg.w.km" = list(min = 10e+3, max = 10e+5, step = 10e+3, value = 5*10e+4),
+         "Rok.produkcji" = list(min = 1, max = 10, step = 1, value = 5),
   )
 }
+
+filter_var <- function(current_range) {
+  
+  
+}
+
+range(auta[["Cena"]])
+
+
+

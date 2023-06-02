@@ -19,8 +19,6 @@ interval_group_by <- function(df, column_interval, column_calculate, interval, d
   column_interval <- enquo(column_interval)
   column_calculate <- enquo(column_calculate)
   
-  print(column_interval)
-  
   df_grouped_by_interval <- df %>%
     mutate(year_intervals = cut(!!column_interval, seq_last(!!column_interval, interval), dig.lab = dig.lab)) %>% 
     group_by(year_intervals) %>%
@@ -31,8 +29,8 @@ interval_group_by <- function(df, column_interval, column_calculate, interval, d
   return(df_grouped_by_interval)
 }
 
-interval_df <- interval_group_by(auta, Rok.produkcji, Cena.w.PLN, 13)
-interval_df
+interval_df1 <- interval_group_by(auta, Rok.produkcji, Cena.w.PLN, 13, range_vals = c(1915, 2000))
+interval_df1
 
 interval_group_by(auta, Rok.produkcji, Cena.w.PLN, 13)
 #################
@@ -50,7 +48,7 @@ interval_group_by_2(auta, "Cena.w.PLN", "Przebieg.w.km", 100000, dig.lab = 10)
 
 interval_group_by_2(auta, "KM", "Przebieg.w.km", 100, dig.lab = 10)
 
-interval_group_by_2(auta, "Przebieg.w.km", "Cena.w.PLN", 100000, dig.lab = 10)
+interval_group_by_2(auta, "Rok.produkcji", "Cena.w.PLN", 100000, range_vals = c(1950, 2000))
 
 quantile(auta$Przebieg.w.km, probs = 0.999, na.rm= TRUE)
 
@@ -103,6 +101,4 @@ interval_input_values <- function(interval_variable) {
 }
 
 
-temp <- xdd("Cena")
 
-temp$min

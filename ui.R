@@ -12,22 +12,40 @@ ui <- dashboardPage(
   dashboardSidebar(disable = TRUE, collapsed = TRUE),
   dashboardBody(
     fluidRow(
-      column(width= 4,
+      column(width= 6,
              wellPanel(
-               intervalInput("interval"))
+               style = "height: 150px; padding-left: 30px; padding-right: 30px;",
+               intervalInput("interval")
+               )
              ),
-      column(width = 5,
+      column(width = 4,
              wellPanel(
-               selectNumercInput("select_variable"))
+               style = "height: 150px; overflow-y: auto;",
+               selectNumericColumnInput("select_variable")
+               )
              ),
-      column(width = 3,
+      column(width = 2,
              wellPanel(
-               meanMedianiInput("meanMedian"))
+               style = "height: 150px; overflow-y: auto;",
+               meanMedianiInput("meanMedian")
+               )
       )
       ),
     fluidRow(
       column(width = 12,
-             plotUI("interval_plot"))
+             wellPanel(
+               style = "height: 740px; overflow-y: auto;",
+               plotUI("interval_plot")
+               )
+             )
+    ),
+    fluidRow(
+      column(width = 12,
+             wellPanel(
+              filterSliderUI("filterSlider")
+             )
+               
+      )
     )
   )
   
