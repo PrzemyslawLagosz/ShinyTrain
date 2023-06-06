@@ -1,0 +1,13 @@
+name: TrainShiny01
+title: TrainShiny01
+username:
+account: przemyslawlagosz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9255543
+bundleId: 7310273
+url: https://przemyslawlagosz.shinyapps.io/TrainShiny01/
+when: 1686039203.73381
+lastSyncTime: 1686039203.73381
+asMultiple: FALSE
+asStatic: FALSE

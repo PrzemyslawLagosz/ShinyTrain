@@ -89,8 +89,6 @@ filterSliderServer <- function(id, currentIntervalColumn) {
 })
 }
 
-
-
 #### PLOT ####
 
 
@@ -103,13 +101,23 @@ plotUI <- function(id) {
 plotServer <- function(id, column_interval, y_axis, interval_value, filterSlider_vals, mean_median) {
   moduleServer(id, function(input, output, session) {
     
+    observeEvent(column_interval(), {
+      message("TUTAJ MAX JEST: ",max(auta[[column_interval()]]))
+    })
     
-    interval_df <- reactive(interval_group_by_2(auta, 
-                                                column_interval = column_interval(), 
-                                                column_calculate =  y_axis(), 
-                                                interval = interval_value(),
-                                                range_vals = filterSlider_vals()))
+    interval_df <- 
+      #debounce(
+        reactive({
+          interval_group_by_2(auta,
+                              column_interval = column_interval(),
+                              column_calculate =  y_axis(),
+                              interval = interval_value(),
+                              range_vals = filterSlider_vals())
+          })
+        #,2000)
+    
     output$main_plot <- renderPlot({
+      
       if (mean_median() == "mean") {
 
       ggplot(interval_df(), aes(x = reorder(year_intervals , year_intervals), y= mean_by_interval /1000, fill = n)) +
@@ -155,7 +163,7 @@ plotServer <- function(id, column_interval, y_axis, interval_value, filterSlider
                    vjust = -1)
 
       }
-      
+     
     }, res = 96, height = 650)
     
   })

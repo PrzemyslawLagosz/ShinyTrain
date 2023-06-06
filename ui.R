@@ -11,6 +11,7 @@ ui <- dashboardPage(
   ),
   dashboardSidebar(disable = TRUE, collapsed = TRUE),
   dashboardBody(
+    useShinyjs(), ########### debounce to do ########
     fluidRow(
       column(width= 6,
              wellPanel(
@@ -20,7 +21,7 @@ ui <- dashboardPage(
              ),
       column(width = 4,
              wellPanel(
-               style = "height: 150px; overflow-y: auto;",
+               #style = "height: 150px; overflow-y: auto;",
                selectNumericColumnInput("select_variable")
                )
              ),
